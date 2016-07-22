@@ -23,14 +23,13 @@ Fastxtend home on the web is http://www.genoscope.cns.fr/externe/fastxtend/
 - The option -Q is not documented in the usages it corresponds to the ASCII offset (generally -Q 33) and performs with all commands.
 
 
-#### fastx_clean
+### fastx_clean
 
 
 $ fastx_clean -h
-usage: fastx_clean [-h] [-a ADAPTER_FILE] [-D] [-l N] [-n N] [-M N] [-m N] [-p N] [-c] [-C] [-o] [-v] [-z] [-i INFILE] [-o OUTFILE]
-Developped at Genoscope using the FASTX Toolkit 0.0.13.1
-
-   [-h]              = This helpful help screen.
+  usage: fastx_clean [-h] [-a ADAPTER_FILE] [-D] [-l N] [-n N] [-M N] [-m N] [-p N] [-c] [-C] [-o] [-v] [-z] [-i INFILE] [-o OUTFILE]
+  Developped at Genoscope using the FASTX Toolkit 0.0.13.1
+  [-h]              = This helpful help screen.
    [-a ADAPTER_FILE] = ADAPTER file in fasta format.
    [-j]              = Keep the longest sequence before adaptater.
    [-l N]            = Discard sequences shorter than N nucleotides. default is 10.
@@ -58,7 +57,7 @@ Developped at Genoscope using the FASTX Toolkit 0.0.13.1
    [-s STAT_FILE]    = Tabular output file which contains trimming details for each input sequence.
 
 
-#### fastx_duplicatedReads
+### fastx_duplicatedReads
 
 
 $ fastx_duplicatedReads -h
@@ -73,7 +72,7 @@ Developped at Genoscope using the FASTX Toolkit 0.0.13.1
    [-c INT]  = Trim sides of reads by a specified percentage (default: 0%)
 
 
-#### fastx_mergepairs
+### fastx_mergepairs
 
 
 $ fastx_mergepairs -h
@@ -98,7 +97,7 @@ Developped at Genoscope using the FASTX Toolkit 0.0.13.1
    [-M]              = Only print merged pairs, default is no.
 
 
-#### fastx_stats
+### fastx_stats
 
 
 $ fastx_stats -h
@@ -137,4 +136,4 @@ Stefan Engelen, Cyril Firmo and Jean-Marc Aury - Fastxtend's authors
 
 This work was financially supported by the Genoscope, 
 Institut de Genomique, CEA and Agence Nationale de la 
-Recherche (ANR), and France Génomique (ANR-10-INBS-09-08).
+Recherche (ANR), and France GÃ©nomique (ANR-10-INBS-09-08).
