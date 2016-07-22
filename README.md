@@ -27,15 +27,16 @@ Fastxtend home on the web is http://www.genoscope.cns.fr/externe/fastxtend/
 
 
 $ fastx_clean -h
-  usage: fastx_clean [-h] [-a ADAPTER_FILE] [-D] [-l N] [-n N] [-M N] [-m N] [-p N] [-c] [-C] [-o] [-v] [-z] [-i INFILE] [-o OUTFILE]
-  Developped at Genoscope using the FASTX Toolkit 0.0.13.1
-  [-h]              = This helpful help screen.
-   [-a ADAPTER_FILE] = ADAPTER file in fasta format.
-   [-j]              = Keep the longest sequence before adaptater.
-   [-l N]            = Discard sequences shorter than N nucleotides. default is 10.
-   [-q N]            = Quality threshold - nucleotides with lower quality will be trimmed (from both ends of the sequence).
+
+usage: fastx_clean [-h] [-a ADAPTER_FILE] [-D] [-l N] [-n N] [-M N] [-m N] [-p N] [-c] [-C] [-o] [-v] [-z] [-i INFILE] [-o OUTFILE]
+Developped at Genoscope using the FASTX Toolkit 0.0.13.1
+    [-h]              = This helpful help screen.
+    [-a ADAPTER_FILE] = ADAPTER file in fasta format.
+    [-j]              = Keep the longest sequence before adaptater.
+    [-l N]            = Discard sequences shorter than N nucleotides. default is 10.
+    [-q N]            = Quality threshold - nucleotides with lower quality will be trimmed (from both ends of the sequence).
                        default value is 2, use 0 to inactivate this trimming.
-   [-n N]            = Trim sequences after N unknown nucleotides. default is 0 = off. This cleaning is done on the trimmed (adapter + quality) sequence.
+                       [-n N]            = Trim sequences after N unknown nucleotides. default is 0 = off. This cleaning is done on the trimmed (adapter + quality) sequence.
    [-c]              = Discard non-clipped sequences (i.e. - keep only sequences which contained the adapter).
    [-C]              = Discard clipped sequences (i.e. - keep only sequences which did not contained the adapter).
    [-k]              = Report Adapter-Only sequences.
