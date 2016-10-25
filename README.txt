@@ -13,7 +13,7 @@ Fastxtend is distributed open-source under CeCILL
 FREE SOFTWARE LICENSE. Check out http://www.cecill.info/
 for more information about the contents of this license.
 
-Fastxtend home on the web is http://www.genoscope.cns.fr/externe/fastxtend/
+Fastxtend home on the web is http://www.genoscope.cns.fr/fastxtend/
 
 
 ## COMMAND LINE ARGUMENTS
