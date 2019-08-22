@@ -122,7 +122,9 @@ void fastx_init_writer(FASTX *pFASTX,
 		OUTPUT_FILE_TYPE output_type,
 		int compress_output);
 	
-int fastx_read_next_record(FASTX *pFASTX);
+int fastx_read_next_record(FASTX *pFASTX);                          // Original function of fastx
+int fastx_read_next_record_2(FASTX *pFASTX, int qualityConversion); // new function which can desactivate or not the quality conversion(time consuming) based on the boolean qualityConversion
+
 
 void fastx_write_record(FASTX *pFASTX);
 
@@ -136,4 +138,3 @@ size_t num_output_reads(const FASTX *pFASTX);
 #endif
 
 #endif
-
