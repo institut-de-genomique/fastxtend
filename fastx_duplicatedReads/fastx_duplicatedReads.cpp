@@ -68,28 +68,29 @@
 #include "config.h"
 
 #include "fastx.h"
-
 #include "fastx_args.h"
 
 using namespace std;
 
 const char* usage=
-"usage: fastx_collapser [-h] [-v] [-i INFILE] [-o OUTFILE]\n" \
+"usage: fastx_estimate_duplicatedReads [-h] [-v] [-i INFILE] [-o OUTFILE]\n" \
 "Developped at Genoscope using the " PACKAGE_STRING "\n" \
 "\n" \
-"   [-h]         = This helpful help screen.\n" \
-"   [-s SAMPLE]  = FASTA/Q input file of a sample extract from INFILE\n" \
-"   [-i INFILE]  = FASTA/Q input file. Default is STDIN.\n" \
+"   [-h]          = This helpful help screen.\n" \
+"   [-s SAMPLE]   = FASTA/Q input file of a sample extract from INFILE\n" \
+"   [-i INFILE]   = FASTA/Q input file. Default is STDIN.\n" \
 "   [-t SAMPLE2]  = FASTA/Q input file of a sample extract from INFILE2 (Optional)\n" \
 "   [-j INFILE2]  = FASTA/Q input file for Read 2 (Optional)\n" \
-"   [-c INT]  = Trim sides of reads by a specified percentage (default: 0%)\n" \
+"   [-c INT]      = Trim sides of reads by a specified percentage (default: 0%)\n" \
+"   [-p]          = for paired reads, do not estimate duplicate on single reads (Optional)\n" \
 "\n";
 
 char* sample1_filename = NULL;
 char* sample2_filename = NULL;
 char* input1_filename = NULL;
 char* input2_filename = NULL;
-int trimnucl = 0;
+bool  only_paired = 0;
+int   trimnucl = 0;
 FASTX sample, fastx, sample2, fastx2;
 
 typedef struct occurrence {long long int nbFastx;long long int nbSample;};
@@ -109,12 +110,16 @@ int parse_program_args(int __attribute__((unused)) optind, int optc, char* optar
     break;
 
   case 'j':
-	input2_filename = optarg;
-	break;
+    input2_filename = optarg;
+    break;
 
   case 'c':
-	trimnucl = atoi(optarg);
-	break;
+    trimnucl = atoi(optarg);
+    break;
+
+  case 'p':
+    only_paired = 1;
+    break;
 
   default:
     errx(1,"Unknown argument (%c)", optc ) ;
@@ -144,7 +149,7 @@ string trim(string A, int P) {
 }
 
 int parse_commandline(int argc, char* argv[]) {  
-  fastx_parse_cmdline(argc, argv, "s:t:j:c:", parse_program_args);
+  fastx_parse_cmdline(argc, argv, "s:t:j:c:p", parse_program_args);
   return 1;
 }
 
@@ -162,6 +167,10 @@ int main(int argc, char* argv[]) {
   }
   if ((input2_filename == NULL) || (sample2_filename == NULL)){
 		pairs = false;
+		
+		if(only_paired == 1) {
+			errx(1,"-p option only compatible with paired read");
+		}
   }else{
 	    pairs = true;
   }
@@ -188,7 +197,7 @@ int main(int argc, char* argv[]) {
   }
 
   if (pairs == true){
-	  while ( fastx_read_next_record(&sample) && fastx_read_next_record(&sample2) ) {
+	  while ( fastx_read_next_record_2(&sample,0) && fastx_read_next_record_2(&sample2,0) ) {
 		  it = collapsed_sequencesA.find(id_sequence(trim(string(sample.nucleotides),trimnucl),trim(string(sample2.nucleotides),trimnucl)));
 		  if(it != collapsed_sequencesA.end()) it->second.nbSample++;
 		  else
@@ -197,33 +206,38 @@ int main(int argc, char* argv[]) {
 			  collapsed_sequencesA[id_sequence(trim(string(sample.nucleotides),trimnucl),trim(string(sample2.nucleotides),trimnucl))]=initOcc;
 		  }
 
-		  it = collapsed_sequencesB.find(trim(string(sample.nucleotides),trimnucl));
-		  if(it != collapsed_sequencesB.end()) it->second.nbSample++;
-		  else
-		  {
-			  occurrence initOcc; initOcc.nbSample=1; initOcc.nbFastx=0;
-			  collapsed_sequencesB[trim(string(sample.nucleotides),trimnucl)]=initOcc;
-		  }
-
-		  it = collapsed_sequencesC.find(trim(string(sample2.nucleotides),trimnucl));
-		  if(it != collapsed_sequencesC.end()) it->second.nbSample++;
-		  else
-		  {
-			  occurrence initOcc; initOcc.nbSample=1; initOcc.nbFastx=0;
-			  collapsed_sequencesC[trim(string(sample2.nucleotides),trimnucl)]=initOcc;
+		  if(!only_paired) {
+		    it = collapsed_sequencesB.find(trim(string(sample.nucleotides),trimnucl));
+		    if(it != collapsed_sequencesB.end()) it->second.nbSample++;
+		    else
+		    {
+		      occurrence initOcc; initOcc.nbSample=1; initOcc.nbFastx=0;
+		      collapsed_sequencesB[trim(string(sample.nucleotides),trimnucl)]=initOcc;
+		    }
+                    
+		    it = collapsed_sequencesC.find(trim(string(sample2.nucleotides),trimnucl));
+		    if(it != collapsed_sequencesC.end()) it->second.nbSample++;
+		    else
+		    {
+		      occurrence initOcc; initOcc.nbSample=1; initOcc.nbFastx=0;
+		      collapsed_sequencesC[trim(string(sample2.nucleotides),trimnucl)]=initOcc;
+		    }
 		  }
 
 	  }
-	  while ( fastx_read_next_record(&fastx) && fastx_read_next_record(&fastx2) ) {
+	  while ( fastx_read_next_record_2(&fastx,0) && fastx_read_next_record_2(&fastx2,0) ) {
 		  it = collapsed_sequencesA.find(id_sequence(trim(string(fastx.nucleotides),trimnucl),trim(string(fastx2.nucleotides),trimnucl)));
 		  if(it != collapsed_sequencesA.end()) it->second.nbFastx++; //get_reads_count(&fastx);
-		  it = collapsed_sequencesB.find(trim(string(fastx.nucleotides),trimnucl));
-		  if(it != collapsed_sequencesB.end()) it->second.nbFastx++; //get_reads_count(&fastx);
-		  it = collapsed_sequencesC.find(trim(string(fastx2.nucleotides),trimnucl));
-		  if(it != collapsed_sequencesC.end()) it->second.nbFastx++; //get_reads_count(&fastx);
+		  
+		  if(!only_paired) {
+  		    it = collapsed_sequencesB.find(trim(string(fastx.nucleotides),trimnucl));
+		    if(it != collapsed_sequencesB.end()) it->second.nbFastx++; //get_reads_count(&fastx);
+		    it = collapsed_sequencesC.find(trim(string(fastx2.nucleotides),trimnucl));
+		    if(it != collapsed_sequencesC.end()) it->second.nbFastx++; //get_reads_count(&fastx);
+		  }
 	  }
   }else{
-	  while ( fastx_read_next_record(&sample) ) {
+	  while ( fastx_read_next_record_2(&sample,0) ) {
 		  it = collapsed_sequencesA.find(trim(string(sample.nucleotides),trimnucl));
 		  if(it != collapsed_sequencesA.end()) it->second.nbSample++;
 		  else
@@ -232,7 +246,7 @@ int main(int argc, char* argv[]) {
 			  collapsed_sequencesA[trim(string(sample.nucleotides),trimnucl)]=initOcc;
 		  }
 	  }
-	  while ( fastx_read_next_record(&fastx) ) {
+	  while ( fastx_read_next_record_2(&fastx,0) ) {
 	    it = collapsed_sequencesA.find(trim(string(fastx.nucleotides),trimnucl));
 	    if(it != collapsed_sequencesA.end()) it->second.nbFastx++; //get_reads_count(&fastx);
 	  }
@@ -275,7 +289,7 @@ int main(int argc, char* argv[]) {
       rest = rest + (double)nbReads[i] ;
   cout << "nbOcc> " << occ_max_printed << " rate= " << (((double)rest / (double)num_input_reads(&sample)) * 100.0) << endl;
 
-  if (pairs == true){
+  if (pairs == true && !only_paired){
 	  vector<int> nbReadsB(occ_max+1, 0);
 	  vector<int> nbReadsC(occ_max+1, 0);
 	  for(it = collapsed_sequencesB.begin() ; it != collapsed_sequencesB.end() ;it++) {
