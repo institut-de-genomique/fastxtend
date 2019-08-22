@@ -309,8 +309,8 @@ void fastx_init_writer(FASTX *pFASTX,
 			__LINE__, output_type ) ;
 	}
 }
-	
-int fastx_read_next_record(FASTX *pFASTX)
+
+int fastx_read_next_record_2(FASTX *pFASTX, int qualityConversion) // new function which can desactivate or not the quality conversion(time consuming) based on the boolean qualityConversion
 {
 	char temp_qual[MAX_SEQ_LINE_LENGTH+1];
 
@@ -374,14 +374,16 @@ int fastx_read_next_record(FASTX *pFASTX)
 		chomp(pFASTX->name2);
 		chomp(temp_qual);
 		
-		if (strlen(temp_qual) == strlen(pFASTX->nucleotides)) {
-			//Assume this is an ASCII quality score line, convert it to values
-			convert_ascii_quality_score_line ( temp_qual, pFASTX ) ;
-			pFASTX->read_fastq_ascii = 1 ;
-		} else {
-			//Assume this is a numeric quality score line, convert it to values
-			convert_numeric_quality_score_line ( temp_qual, pFASTX ) ;
-			pFASTX->read_fastq_ascii = 0 ;
+		if(qualityConversion) {
+			if (strlen(temp_qual) == strlen(pFASTX->nucleotides)) {
+				//Assume this is an ASCII quality score line, convert it to values
+				convert_ascii_quality_score_line ( temp_qual, pFASTX ) ;
+				pFASTX->read_fastq_ascii = 1 ;
+			} else {
+				//Assume this is a numeric quality score line, convert it to values
+				convert_numeric_quality_score_line ( temp_qual, pFASTX ) ;
+				pFASTX->read_fastq_ascii = 0 ;
+			}
 		}
 
 		//Copy the input format to the output format flag
@@ -396,6 +398,10 @@ int fastx_read_next_record(FASTX *pFASTX)
 	pFASTX->num_input_reads += get_reads_count(pFASTX);
 
 	return 1;
+}
+
+int fastx_read_next_record(FASTX *pFASTX) { // Original function of fastx
+	return ( fastx_read_next_record_2(pFASTX,1) );
 }
 
 static void write_ascii_qual_string(FASTX *pFASTX, int length)
@@ -508,5 +514,3 @@ size_t num_output_reads(const FASTX *pFASTX)
 {
 	return pFASTX->num_output_reads;
 }
-
-
